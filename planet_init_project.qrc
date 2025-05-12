@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>moonmap1k.jpg</file>
+        <file>earth_texture.jpg</file>
+        <file>stars_2k.hdr</file>
+        <file>moon_map_with_grid_no_ticks.jpg</file>
+        <file>moon_map_with_grid.jpg</file>
+        <file>interplanetary_transport.db</file>
+        <file>Planet.qml</file>
+        <file>images/mars.jpg</file>
+        <file>images/phobos.jpg</file>
+        <file>images/ceres.jpg</file>
+        <file>images/titan.jpg</file>
+        <file>images/ceres_with_grid.jpg</file>
+        <file>images/mars_with_grid.jpg</file>
+        <file>images/phobos_with_grid.jpg</file>
+        <file>images/titan_with_grid.jpg</file>
+    </qresource>
+</RCC>

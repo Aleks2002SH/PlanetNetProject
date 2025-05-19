@@ -15,5 +15,7 @@
         <file>images/mars_with_grid.jpg</file>
         <file>images/phobos_with_grid.jpg</file>
         <file>images/titan_with_grid.jpg</file>
+        <file>images/moon.jpg</file>
+        <file>images/moon_with_grid.jpg</file>
     </qresource>
 </RCC>

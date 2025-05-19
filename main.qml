@@ -30,6 +30,10 @@ Window {
     property real rel_col:0.5
     property real rel_row:0.4
     property real info_box_height:0.2
+    property real combobox_height:0.1
+    property Node selected_marker:view3D
+    property color baseColor:"green"
+    property string selected_planet:"oiiai"
 
     GridLayout {
             id: grid_layout
@@ -51,28 +55,6 @@ Window {
     }
 
 
-    ListModel {
-            id: markerModel
-        }
-    Repeater3D {
-        model: markerModel
-        delegate: Model {
-            source: "#Cube"
-            scale: Qt.vector3d(0.001, 0.001, 0.001)
-            position: Qt.vector3d(model.x, model.y, model.z)
-            property string text: model.text
-            property string mineral_text: model.mineral_text
-            property int markerIndex: model.markerIndex
-            property string elements_info: model.elements_info
-            property string materials_and_products: model.materials_and_products
-            pickable: true
-            visible: true
-            materials: DefaultMaterial {
-                diffuseColor: "green"
-                lighting: DefaultMaterial.NoLighting
-            }
-        }
-    }
 
     Item {
                 id: planetViewerContainer
@@ -95,6 +77,43 @@ Window {
             }
             backgroundMode: SceneEnvironment.SkyBox
         }
+        ListModel {
+                id: markerModel
+            }
+        Repeater3D {
+            model: markerModel
+            delegate: Model {
+                source: "#Cube"
+                id:markerModelItem
+                scale: Qt.vector3d(0.001, 0.001, 0.001)
+                position: Qt.vector3d(model.x, model.y, model.z)
+                property string text: model.text
+                property string mineral_text: model.mineral_text
+                property int markerIndex_new_elem: model.markerIndex_new_elem
+                property string elements_info: model.elements_info
+                property string materials_and_products: model.materials_and_products
+                property bool recently_added_elem: model.false
+                property real lat: model.lat
+                property real lon: model.lon
+                property string description: model.description
+                property string type: model.type
+                property bool isSelected:false
+                pickable: true
+                visible: true
+                materials: DefaultMaterial {
+                    diffuseColor: isSelected ? "#66FF66" : "green"
+                    lighting: DefaultMaterial.NoLighting
+                }
+                MouseArea{
+                            anchors.fill: parent
+                            id: markerMouseArea1
+                            onClicked: {
+                            }
+                        }
+            }
+            }
+
+
 
         function hideAllPlanets() {
             moon.visible = false;
@@ -119,7 +138,7 @@ Window {
 
         Planet {
                id: moon
-               textureSource: "moon_map_with_grid.jpg"
+               textureSource: "/images/moon_with_grid.jpg"
                scaleFactor: globe_rad
                objectNamePrefix: "Moon"
                visible:false
@@ -176,36 +195,67 @@ Window {
                 onClicked:{
                     const result = view3D.pick(mouse.x, mouse.y);
                             console.log("Pick result: ", result);
-                            if (result.objectHit === selected_node && modeSelector.currentText === "creation mode")
+                            if (result.objectHit === selected_node.globe && modeSelector.currentText === "creation mode")
                                                                                    {
+                                new_elems.objects_database = net;
                                 console.log("Clicked on the globe at position:", result.scenePosition);
-                                model_cnt++;
-                                console.log(model_cnt)
-                                new_elems.get_area_data(selected_node.object_name_globe);
-                                var area_id = new_elems.check_area(result.scenePosition,selected_node.position,selected_node.rotation);
+                                new_elems.get_area_data(selected_node.globe.object_name_globe);
+                                var area_id = new_elems.check_area(result.scenePosition,selected_node.globe.position,selected_node.globe.rotation);
+                                console.log(result.scenePosition,selected_node.globe.position,selected_node.globe.rotation)
                                 console.log("Area_id",area_id);
                                 var elems_info = new_elems.get_area_elements(area_id);
                                 var mineral_info = new_elems.get_area_minerals(area_id);
-                                elements_text.text = elems_info;
-                                minerals_text.text = mineral_info;
-                                material_and_products_text.text = " "
-                                markerModel.append({ "x": result.scenePosition.x, "y": result.scenePosition.y, "z": result.scenePosition.z })
+                                var area_info = new_elems.get_area_description(area_id);
+
+
+                                general_area_info.text = area_info+"\n"+"Elements: "+elems_info+"\n Minerals: "+mineral_info;
+                                console.log(general_area_info.text)
+
+                                if (add_element_checkbox.checked){
+                                    var lat_lon = new_elems.get_lat_lon(result.scenePosition,selected_node.globe.position,selected_node.globe.rotation);
+                                    model_cnt++;
+                                    console.log(model_cnt)
+                                    add_elements_options.text ="Coordinates: latitude "+lat_lon[0].toFixed(2).toString() + " longitude "+lat_lon[1].toFixed(2).toString();
+                                selected_node.new_markerModel.append({ "x": result.scenePosition.x, "y": result.scenePosition.y, "z": result.scenePosition.z,"visible":true,
+                                                   "recently_added_elem":true,"pickable":true,
+                                                  "elements_info":elems_info,"mineral_text":mineral_info,"materials_and_products":" ",
+                                                  "markerIndex_new_elem":model_cnt,"text":area_info,"lat":lat_lon[0],"lon":lat_lon[1]}
+                                                   )
+                                }
+
                             }
                             else{
                                 const obj = result.objectHit;
                                 if ("markerIndex" in obj) {
                                     console.log("Clicked index:", obj.markerIndex);
-                                    //text_id.text = obj.text;
                                     console.log(obj.text);
-//                                    console.log("Mineral text:",obj.mineral_text);
                                     general_base_info.text = obj.text;
+
                                     mineral_text.text = obj.mineral_text;
+                                    console.log("Mineral text: ",obj.mineral_text)
                                     elements_text.text = obj.elements_info;
                                     material_and_products_text.text = obj.materials_and_products;
+                                    if (selected_marker !== null) {
+                                        selected_marker.isSelected = false;
+                                    }
 
-                                    //connectionStatusBox.visible = true;
+                                    selected_marker = obj;
+                                    obj.isSelected = true;
 
                                  }
+                                else if ("recently_added_elem" in obj){
+                                    console.log(obj.recently_added_elem);
+                                    console.log(obj.elems_info);
+                                    console.log(obj.mineral_text);
+                                    console.log(obj.text);
+                                    console.log(obj.lat,obj.lon);
+                                    if (selected_marker !== null) {
+                                        selected_marker.isSelected = false;
+                                    }
+                                    selected_marker = obj;
+                                    obj.isSelected = true;
+                                    add_elements_options.text = "Coordinates: latitude "+obj.lat.toFixed(2).toString() + " longitude "+obj.lon.toFixed(2).toString();
+                                }
 
                                 else {
                                     console.log("Mouse clicked outside the globe.");
@@ -258,7 +308,7 @@ Window {
                     var radY = angleY * Math.PI / 180;
                     var radX = angleX * Math.PI / 180;
 
-                    var center = selected_node.position;
+                    var center = selected_node.globe.position;
 
                     var x = center.x + radius * Math.cos(radX) * Math.sin(radY);
                     var y = center.y + radius * Math.sin(radX);
@@ -266,7 +316,7 @@ Window {
 
 
                     camera.position = Qt.vector3d(x, y, z);
-                    camera.lookAtNode = selected_node;
+                    camera.lookAtNode = selected_node.globe;
 
 
                     lastX = mouse.x;
@@ -283,7 +333,7 @@ Window {
                     var radX = angleX * Math.PI / 180;
 
 
-                    var center = selected_node.position;
+                    var center = selected_node.globe.position;
 
                     var x = center.x + radius * Math.cos(radX) * Math.sin(radY);
                     var y = center.y + radius * Math.sin(radX);
@@ -293,7 +343,7 @@ Window {
                     camera.position = Qt.vector3d(x, y, z);
 
 
-                    camera.lookAtNode = selected_node;
+                    camera.lookAtNode = selected_node.globe;
 
 
                             }
@@ -325,7 +375,8 @@ Window {
                         view3D.hideAllPlanets();
                         moon.visible = true;
                         moon.globe.position = Qt.vector3d(0, 0, 0);
-                        selected_node = moon.globe;
+                        selected_node = moon;
+                        selected_planet = moon.objectNamePrefix;
                         camera.lookAtNode = moon.globe;
                         mouseArea.radius = 5;
                     }
@@ -336,7 +387,8 @@ Window {
                         view3D.hideAllPlanets();
                         mars.visible = true;
                         mars.globe.position = Qt.vector3d(0, 0, 0);
-                        selected_node = mars.globe;
+                        selected_node = mars;
+                        selected_planet = mars.objectNamePrefix;
                         camera.lookAtNode = mars.globe;
                         mouseArea.radius = 5;
                     }
@@ -347,7 +399,8 @@ Window {
                         view3D.hideAllPlanets();
                         phobos.visible = true;
                         phobos.globe.position = Qt.vector3d(0, 0, 0);
-                        selected_node = phobos.globe;
+                        selected_planet = phobos.objectNamePrefix;
+                        selected_node = phobos;
                         camera.lookAtNode = phobos.globe;
                         mouseArea.radius = 5;
                     }
@@ -358,7 +411,8 @@ Window {
                         view3D.hideAllPlanets();
                         ceres.visible = true;
                         ceres.globe.position = Qt.vector3d(0, 0, 0);
-                        selected_node = ceres.globe;
+                        selected_node = ceres;
+                        selected_planet = ceres.objectNamePrefix;
                         camera.lookAtNode = ceres.globe;
                         mouseArea.radius = 5;
                     }
@@ -369,7 +423,8 @@ Window {
                         view3D.hideAllPlanets();
                         titan.visible = true;
                         titan.globe.position = Qt.vector3d(0, 0, 0);
-                        selected_node = titan.globe;
+                        selected_node = titan;
+                        selected_planet = titan.objectNamePrefix;
                         camera.lookAtNode = titan.globe;
                         mouseArea.radius = 5;
                     }
@@ -428,16 +483,37 @@ Window {
                spacing: 4
 
                // Row 1: Mode Selector (example with ComboBox)
+               Row{
                ComboBox {
                    id: modeSelector
                    Layout.fillWidth: true
-                   Layout.preferredHeight: info_box_height * infobox.height
+                   Layout.preferredHeight:combobox_height * infobox.height
+                   Layout.preferredWidth: 0.6*infobox.width
                    model: ["view mode", "creation mode"]
                }
-
+               Button{
+                   id:reload_button
+                   text:"Reload database"
+                   Layout.preferredHeight:combobox_height * infobox.height
+                   Layout.preferredWidth: 0.4*infobox.width
+                   onClicked: {
+                           moon.new_markerModel.clear();
+                           mars.new_markerModel.clear();
+                           phobos.new_markerModel.clear();
+                           ceres.new_markerModel.clear();
+                           titan.new_markerModel.clear();
+                           moon.reloadMarkers();
+                           mars.reloadMarkers();
+                           phobos.reloadMarkers();
+                           ceres.reloadMarkers();
+                           titan.reloadMarkers();
+                  }
+               }
+               }
                ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight:info_box_height *infobox.height
+                   visible:modeSelector.currentText === "view mode"
                    TextArea {
                        id:general_base_info
                        text: ""
@@ -446,10 +522,13 @@ Window {
                    }
                }
 
+               //View mode options
+
                // Row 2: Mineral Text
                ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight: info_box_height* infobox.height
+                   visible:modeSelector.currentText === "view mode"
                    TextArea {
                        id:mineral_text
                        text: ""
@@ -462,6 +541,7 @@ Window {
                ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight: info_box_height * infobox.height
+                   visible:modeSelector.currentText === "view mode"
                    TextArea {
                        id:elements_text
                        text: ""
@@ -474,6 +554,7 @@ Window {
                ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight: info_box_height * infobox.height
+                   visible:modeSelector.currentText === "view mode"
                    TextArea {
                        id:material_and_products_text
                        text: ""
@@ -481,6 +562,97 @@ Window {
                        readOnly: true
                    }
                }
+
+               // Creation mode options:
+
+               ScrollView {
+                   Layout.fillWidth: true
+                   Layout.preferredHeight: (1-info_box_height)*0.5 * infobox.height
+                   visible:modeSelector.currentText === "creation mode"
+                   TextArea {
+                       id:general_area_info
+                       text: ""
+                       wrapMode: Text.Wrap
+                       readOnly: true
+                   }
+               }
+               ColumnLayout{
+                   Layout.fillWidth: true
+                   Layout.preferredHeight: (1-info_box_height)*0.5 * infobox.height
+                   visible:modeSelector.currentText === "creation mode"
+                   property real buttons_size:0.3
+                   Row {
+                           spacing: 5
+                           width: parent.width
+                           height: buttons_size*parent.height
+
+                           CheckBox {
+                               id: add_element_checkbox
+                               text: "Enable custom elements"
+                           }
+
+                           Button {
+                               id: add_element_to_db
+                               text: "Add element to db"
+                               enabled: add_element_checkbox.checked
+                               onClicked: {
+                                   if ("recently_added_elem" in selected_marker){
+                                   var name_and_type = written_type_options.text;
+                                   var description = written_description_options.text;
+                                   name_and_type = name_and_type.split(" ")
+                                   var mineral_text = selected_marker.mineral_text;
+                                   console.log("Mineral text: ",mineral_text)
+
+                                   var dict = {
+                                           "name": name_and_type[0],
+                                           "type": name_and_type[1],
+                                           "description": description,
+                                           "mineral_text": mineral_text
+                                       };
+
+                                   var status = new_elems.add_location_to_database(selected_planet,dict,selected_marker.lat,selected_marker.lon);
+                                   new_element_status.text = status;
+                                  }
+                               }
+                           }
+                           TextArea{
+                               id:new_element_status
+                               text:""
+                           }
+                   }
+                   ScrollView {
+                       Layout.fillWidth: true
+                       Layout.preferredHeight: (1-buttons_size)*parent.height
+                       visible:modeSelector.currentText === "creation mode"
+                       Column {
+                               spacing: 3
+                               width: parent.width
+
+                       TextArea {
+                           id:add_elements_options
+                           text: ""
+                           wrapMode: Text.Wrap
+                           readOnly: true
+                       }
+                       TextArea{
+                           id:written_type_options
+                           placeholderText: qsTr("Write name and type of the current selected element")
+                           text:""
+                           wrapMode: Text.Wrap
+                           readOnly:false
+                       }
+                       TextArea{
+                           id:written_description_options
+                           placeholderText: qsTr("Write description of the current selected element")
+                           text:""
+                           wrapMode: Text.Wrap
+                           readOnly:false
+                       }
+                       }
+                   }
+               }
+
+
            }
 
     }

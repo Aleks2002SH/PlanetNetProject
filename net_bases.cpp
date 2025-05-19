@@ -53,6 +53,8 @@ void net_bases::calculate_positions(QVector3D planetPosition, QQuaternion sphere
             qDebug()<<coords;
             double latDeg = coords[0];
             double lonDeg = coords[1];
+            if (lonDeg < 0){
+                        lonDeg += 360;}
 
             double latRad = M_PI*(latDeg)/180;
             double lonRad = M_PI*(lonDeg)/180;
@@ -183,6 +185,17 @@ QString net_bases::get_materials_and_products_from_location(int ind)
     return result;
 }
 
+void net_bases::reload_net_base()
+{
+
+    m_object_name.clear();
+    m_obj_coords.clear();
+    m_lat_lon.clear();
+    m_objects_info.clear();
+    m_location_ids.clear();
+
+}
+
 
 
 void net_bases::get_location_data()
@@ -195,7 +208,7 @@ void net_bases::get_location_data()
            QString type = query.value("type").toString();
            QString description = query.value("description").toString();
            QString coordinates = query.value("coordinates").toString();
-           m_objects_info.append("name: "+ name+";\n Type: "+type+";\n Description: "+description);
+           m_objects_info.append("name: "+ name+";\n Type: "+type+";\n Description: "+description+"\n Location id: "+location_id);
            m_lat_lon.append(parse_coordinates(coordinates));
            m_location_ids.append(location_id);
            qDebug() << "Location:" << name << type << coordinates<<location_id;

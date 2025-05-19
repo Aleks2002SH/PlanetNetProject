@@ -5,6 +5,9 @@
 #include <QVector>
 #include <QVector3D>
 #include <QQuaternion>
+#include <QHash>
+#include <QVariantMap>
+#include <QRandomGenerator>
 
 
 
@@ -35,6 +38,7 @@ public:
 
     const QVector<QString> &area_ids() const;
     void setArea_ids(const QVector<QString> &newArea_ids);
+    QStringList parse_mineral_text(QString mineral_text);
 
 
     Q_INVOKABLE QString check_area(QVector3D position_object,QVector3D globe_position,QQuaternion rotation);
@@ -46,6 +50,10 @@ public:
     Q_INVOKABLE QString get_area_elements(QString area_id);
 
     Q_INVOKABLE QString get_area_minerals(QString area_id);
+
+    Q_INVOKABLE QVariantList get_lat_lon(QVector3D position,QVector3D globe_position,QQuaternion rotation);
+
+    Q_INVOKABLE QString add_location_to_database(QString cel_body_name,QVariantMap text_data,double lat,double lon);
 
 
 

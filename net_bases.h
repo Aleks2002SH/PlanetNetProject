@@ -33,6 +33,7 @@ public:
     Q_INVOKABLE QString get_elements_from_location(int ind);
 
     Q_INVOKABLE QString get_materials_and_products_from_location(int ind);
+    Q_INVOKABLE void reload_net_base();
 
 
     const QVector<QVector3D> &obj_coords() const;

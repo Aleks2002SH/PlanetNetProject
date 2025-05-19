@@ -240,7 +240,7 @@ QStringList net_new_elements::parse_mineral_text(QString mineral_text)
 
 QString net_new_elements::check_area(QVector3D position_object, QVector3D globe_position, QQuaternion rotation)
 {
-    QVector3D local_position = rotation.rotatedVector(position_object - globe_position);
+    QVector3D local_position = rotation.inverted().rotatedVector(position_object - globe_position);
     double x = local_position.x();
     double y = local_position.y();
     double z = local_position.z();

@@ -28,12 +28,13 @@ Window {
     property int model_cnt:0
     property Node selected_node:view3D
     property real rel_col:0.5
-    property real rel_row:0.4
+    property real rel_row:0.3
     property real info_box_height:0.2
     property real combobox_height:0.1
     property Node selected_marker:view3D
     property color baseColor:"green"
     property string selected_planet:"oiiai"
+    property real buttons_size:0.3
 
     GridLayout {
             id: grid_layout
@@ -199,7 +200,8 @@ Window {
                                                                                    {
                                 new_elems.objects_database = net;
                                 console.log("Clicked on the globe at position:", result.scenePosition);
-                                new_elems.get_area_data(selected_node.globe.object_name_globe);
+                                new_elems.get_area_data(selected_node.objectNamePrefix);
+                                console.log(selected_node.objectNamePrefix)
                                 var area_id = new_elems.check_area(result.scenePosition,selected_node.globe.position,selected_node.globe.rotation);
                                 console.log(result.scenePosition,selected_node.globe.position,selected_node.globe.rotation)
                                 console.log("Area_id",area_id);
@@ -258,6 +260,7 @@ Window {
                                 }
 
                                 else {
+                                    console.log(selected_node.objectNamePrefix)
                                     console.log("Mouse clicked outside the globe.");
 
                                 }
@@ -475,7 +478,7 @@ Window {
         Layout.row: 1
         Layout.column: 1
         Layout.fillWidth: true
-        Layout.preferredHeight: window_id.height*rel_row
+        Layout.preferredHeight: window_id.height*(1-rel_row)
         Layout.preferredWidth: window_id.width*(1-rel_col)
 
         ColumnLayout {
@@ -510,6 +513,15 @@ Window {
                   }
                }
                }
+               Rectangle {
+                       visible: modeSelector.currentText === "view mode"
+                       Layout.fillWidth: true
+                       height: 2
+                       color: "black"
+                       z: 10
+                   }
+
+
                ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight:info_box_height *infobox.height
@@ -525,6 +537,14 @@ Window {
                //View mode options
 
                // Row 2: Mineral Text
+
+               Rectangle {
+                       visible: modeSelector.currentText === "view mode"
+                       Layout.fillWidth: true
+                       height: 2
+                       color: "black"
+                       z: 10
+                   }
                ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight: info_box_height* infobox.height
@@ -538,7 +558,14 @@ Window {
                }
 
                // Row 3: Elements Info
-               ScrollView {
+               Rectangle {
+                       visible: modeSelector.currentText === "view mode"
+                       Layout.fillWidth: true
+                       height: 2
+                       color: "black"
+                       z: 10
+                   }
+              ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight: info_box_height * infobox.height
                    visible:modeSelector.currentText === "view mode"
@@ -551,6 +578,13 @@ Window {
                }
 
                // Row 4: Materials and Products
+              Rectangle {
+                      visible: modeSelector.currentText === "view mode"
+                      Layout.fillWidth: true
+                      height: 2
+                      color: "black"
+                      z: 10
+                  }
                ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight: info_box_height * infobox.height
@@ -564,8 +598,14 @@ Window {
                }
 
                // Creation mode options:
+               Rectangle {
+                                      visible:modeSelector.currentText === "creation mode"
+                                      height: 2
+                                      color: "black"
+                                      width: infobox.width
+                                  }
 
-               ScrollView {
+              ScrollView {
                    Layout.fillWidth: true
                    Layout.preferredHeight: (1-info_box_height)*0.5 * infobox.height
                    visible:modeSelector.currentText === "creation mode"
@@ -576,11 +616,16 @@ Window {
                        readOnly: true
                    }
                }
+              Rectangle {
+                                     visible:modeSelector.currentText === "creation mode"
+                                     height: 2
+                                     color: "black"
+                                     width: infobox.width
+                                 }
                ColumnLayout{
                    Layout.fillWidth: true
                    Layout.preferredHeight: (1-info_box_height)*0.5 * infobox.height
                    visible:modeSelector.currentText === "creation mode"
-                   property real buttons_size:0.3
                    Row {
                            spacing: 5
                            width: parent.width
@@ -597,15 +642,14 @@ Window {
                                enabled: add_element_checkbox.checked
                                onClicked: {
                                    if ("recently_added_elem" in selected_marker){
-                                   var name_and_type = written_type_options.text;
+                                   var name = written_type_options.text;
                                    var description = written_description_options.text;
-                                   name_and_type = name_and_type.split(" ")
                                    var mineral_text = selected_marker.mineral_text;
                                    console.log("Mineral text: ",mineral_text)
 
                                    var dict = {
-                                           "name": name_and_type[0],
-                                           "type": name_and_type[1],
+                                           "name": name,
+                                           "type": "custom_base",
                                            "description": description,
                                            "mineral_text": mineral_text
                                        };
@@ -620,6 +664,12 @@ Window {
                                text:""
                            }
                    }
+                   Rectangle {
+                                          visible:modeSelector.currentText === "creation mode"
+                                          height: 2
+                                          color: "black"
+                                          width: infobox.width
+                                      }
                    ScrollView {
                        Layout.fillWidth: true
                        Layout.preferredHeight: (1-buttons_size)*parent.height
@@ -636,7 +686,7 @@ Window {
                        }
                        TextArea{
                            id:written_type_options
-                           placeholderText: qsTr("Write name and type of the current selected element")
+                           placeholderText: qsTr("Write name of the current selected element")
                            text:""
                            wrapMode: Text.Wrap
                            readOnly:false

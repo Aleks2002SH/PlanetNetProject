@@ -6,6 +6,7 @@ SOURCES += \
         main.cpp \
         net_bases.cpp \
         net_new_elements.cpp \
+        net_paths.cpp \
         objects.cpp \
         orbit_calculation.cpp \
         planets.cpp \
@@ -35,6 +36,7 @@ HEADERS += \
     functions.h \
     net_bases.h \
     net_new_elements.h \
+    net_paths.h \
     objects.h \
     orbit_calculation.h \
     planets.h \

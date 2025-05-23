@@ -4,6 +4,7 @@
 #include "sql_database.h"
 #include "net_bases.h"
 #include "net_new_elements.h"
+#include "net_paths.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +14,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<sql_database>("sql.interplanetary_net", 1, 0, "Interplanetary_net");
     qmlRegisterType<net_bases>("net.net_bases",1,0,"Net_Base");
     qmlRegisterType<net_new_elements>("net.net_new_elements",1,0,"Net_new_elems");
+    qmlRegisterType<net_paths>("net.paths",1,0,"NetBasePath");
+
 
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:/planet_init_project/main.qml"_qs);

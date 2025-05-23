@@ -272,3 +272,13 @@ void net_bases::setLocation_ids(const QVector<QString> &newLocation_ids)
     m_location_ids = newLocation_ids;
     emit location_idsChanged();
 }
+
+QVector<QVector<double> > net_bases::get_lat_lon()
+{
+    return m_lat_lon;
+}
+
+QVector<QVector3D> net_bases::get_object_coords()
+{
+    return m_obj_coords;
+}

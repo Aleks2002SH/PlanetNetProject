@@ -3,6 +3,7 @@ import QtQuick3D
 import QtQuick.Controls
 import net.net_bases
 import sql.interplanetary_net
+import net.paths
 
 
 Loader3D{
@@ -98,6 +99,25 @@ Loader3D{
     Net_Base{
         id:net_base
     }
+    NetBasePath {
+        id: net_base_paths
+    }
+    Model {
+                id:net_path
+                visible:true
+                position: Qt.vector3d(0, 0, 0)
+//              scale: Qt.vector3d(scaleFactor, scaleFactor, scaleFactor)
+                geometry: net_base_paths
+                z:2
+                materials: DefaultMaterial {
+                        diffuseColor: "magenta"
+                        lighting: DefaultMaterial.NoLighting
+                        lineWidth:20
+                    }
+
+            }
+
+
     function reloadMarkers() {
         markerModel.clear();
         model_cnt = 0;
@@ -131,6 +151,12 @@ Loader3D{
 
             model_cnt += 1;
         }
+        net_base_paths.net_base = net_base;
+        net_base_paths.planet_position = globe.position;
+        net_base_paths.planet_rotation = globe.rotation;
+        net_base_paths.planet_radius = diam+0.001;
+        net_base_paths.tryRebuildGeometry();
+        net_path.geometry = net_base_paths;
     }
 
     Component.onCompleted:{
@@ -168,6 +194,12 @@ Loader3D{
 
             model_cnt += 1;
          }
+        net_base_paths.net_base = net_base;
+        net_base_paths.planet_position = globe.position;
+        net_base_paths.planet_rotation = globe.rotation;
+        net_base_paths.planet_radius = diam+0.1;
+        net_base_paths.tryRebuildGeometry();
+        net_path.geometry = net_base_paths;
     }
 
 }

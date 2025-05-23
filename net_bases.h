@@ -48,6 +48,9 @@ public:
     const QVector<QString> &location_ids() const;
     void setLocation_ids(const QVector<QString> &newLocation_ids);
 
+    QVector<QVector<double>> get_lat_lon();
+    QVector<QVector3D> get_object_coords();
+
 signals:
     void objects_databaseChanged();
     void object_nameChanged();
